@@ -155,16 +155,18 @@ For the Star Baker and elimination outcomes, the relevant comparison is within e
 
 We exclude the final round, Round 10, from both the Star Baker and elimination models. In the final, “Star Baker” is effectively the overall winner, and there is no ordinary weekly elimination decision. For the elimination model, we also exclude episodes with zero or two eliminations, so that each retained risk set has exactly one eliminated baker. The same restriction is used during cross-validation.
 
-A baseline frequentist conditional logit model assumes a shared judging rule across episodes and seasons. That is, the effects of signature, showstopper, and technical performance are assumed to be the same at every point in the competition. For baker $i$ in episode $j$, write the underlying model as
+We use a frequentist conditional logit model which assumes a shared judging rule across episodes and seasons. That is, the effects of signature, showstopper, and technical performance are assumed to be the same at every point in the competition. For baker $i$ in episode $j$, write the underlying model as
 
 $$
-\operatorname{logit}{\Pr(Y_{ij}=1)}
+\operatorname{logit}\left(
+Y_{ij}=1
+\mid
+\sum_{\ell \in \mathcal R_j} Y_{\ell j}=1
+\right)
 =\alpha_j + X_{ij}^\top \beta,
 $$
 
-where $Y_{ij}$ indicates whether baker $i$ is selected in episode $j$, $X_{ij}$ contains the signature, showstopper, and technical performance variables, and $\alpha_j$ is an episode-specific intercept.
-
-The episode intercept $\alpha_j$ represents the baseline selection level for episode $j$. It is shared by all bakers in the same episode and captures episode-level differences in baseline selection probability, such as the mechanical difference between choosing one baker out of twelve versus one baker out of three.
+where $Y_{ij}$ indicates whether baker $i$ is selected in episode $j$, $X_{ij}$ contains the signature, showstopper, and technical performance variables, and $\alpha_j$ is an episode-specific intercept representing the baseline selection level for episode $j$. It is shared by all bakers in the same episode and captures episode-level differences in baseline selection probability, such as the mechanical difference between choosing one baker out of twelve versus one baker out of three.
 
 In the conditional logit model, we compare bakers only within the same episode. Equivalently, we condition on the observed number of selected bakers in each episode. For a one-event episode, the conditional probability that baker $i$ is selected is
 
@@ -175,19 +177,6 @@ Y_{ij}=1
 \sum_{\ell \in \mathcal R_j} Y_{\ell j}=1
 \right)
 =\frac{
-\exp(X_{ij}^\top \beta)
-}{
-\sum_{\ell \in \mathcal R_j}
-\exp(X_{\ell j}^\top \beta)
-},
-$$
-
-where $\mathcal R_j$ is the episode-specific risk set.
-
-The episode intercept $\alpha_j$ cancels from this conditional probability:
-
-$$
-\frac{
 \exp(\alpha_j + X_{ij}^\top \beta)
 }{
 \sum_{\ell \in \mathcal R_j}
@@ -199,10 +188,12 @@ $$
 }{
 \sum_{\ell \in \mathcal R_j}
 \exp(X_{\ell j}^\top \beta)
-}.
+},
 $$
 
-Thus, $\alpha_j$ is allowed to be arbitrary but is not directly estimated. The conditional likelihood across episodes is
+where $\mathcal R_j$ is the episode-specific risk set and the episode intercept $\alpha_j$ cancels from this conditional probability (we regard it as nuisance and don't estimate it)
+
+Thus, the conditional likelihood across episodes is
 
 $$
 L_c(\beta)
